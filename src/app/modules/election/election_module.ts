@@ -24,8 +24,12 @@ import {
     CHAIN_STATE_ELECTION,
 } from './schemas';
 
+import {
+    AccountSchemaType
+} from './types';
+
 export class ElectionModule extends BaseModule {
-    public accountSchema = accountSchema;
+    public accountSchema:AccountSchemaType = accountSchema;
 
     public actions = {
         totalCandidates: async () => {

@@ -1,6 +1,3 @@
-export interface AccountSchemaType {
-    voted: boolean;
-}
 export const accountSchema = {
     $id: 'lisk/election/account',
     type: 'object',
@@ -36,10 +33,6 @@ export const electionSchema = {
         },
     },
 };
-export interface electionType {
-    candidates:string[],
-    voteCount:number[]
-};
 
 export const CHAIN_STATE_CANDIDATE_COUNTER = "election:candidateCounter";
 export const candidateCounterSchema = {
@@ -53,10 +46,6 @@ export const candidateCounterSchema = {
         },
     },
 };
-export interface candidateCounterType {
-    candidateCounter:number
-}
-
 export const CHAIN_STATE_VOTE_COUNTER = "election:voteCounter";
 export const voteCounterSchema = {
     $id: 'lisk/election/voteCounter',
@@ -70,7 +59,7 @@ export const voteCounterSchema = {
     },
 };
 
-export const addCandidateAssetId = 1;
+export const addCandidateAssetId = 0;
 export const addCandidateAssetSchema = {
     $id: 'lisk/election/addCandidateAsset',
     title: 'AddCandidateAsset for election module',
@@ -85,11 +74,8 @@ export const addCandidateAssetSchema = {
         },
     }
 };
-export interface addCandidateAssetType {
-    name: string;
-}
 
-export const voteAssetId = 2;
+export const voteAssetId = 1;
 export const voteAssetSchema = {
     $id: 'lisk/election/voteAsset',
     title: 'voteAsset for election module',
@@ -104,6 +90,3 @@ export const voteAssetSchema = {
         },
     }
 };
-export interface voteAssetType {
-    name: string;
-}

@@ -5,5 +5,5 @@ export const pages = [
 ];
 
 export const moduleElectionId = 1001;
-export const addCandidateAssetId = 1;
-export const voteAssetId = 2;
+export const addCandidateAssetId = 0;
+export const voteAssetId = 1;

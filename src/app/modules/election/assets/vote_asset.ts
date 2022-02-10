@@ -7,15 +7,21 @@ import {
     electionSchema,
     voteAssetId,
     voteAssetSchema,
-    voteAssetType,
 } from '../schemas';
+
+import {
+    ElectionChainType,
+    ElectionModuleType,
+    VoteAssetType,
+    VoteCounterType,
+} from '../types';
 
 export class VoteAsset extends BaseAsset {
 	public name = 'vote';
   public id = voteAssetId;
 	public schema = voteAssetSchema;
 
-  public validate(context: ValidateAssetContext<voteAssetType>): void {
+  public validate(context: ValidateAssetContext<VoteAssetType>): void {
     // Validate your asset
     if (!context.asset.name) {
 	      throw new Error(
@@ -25,48 +31,52 @@ export class VoteAsset extends BaseAsset {
   }
 
 	// eslint-disable-next-line @typescript-eslint/require-await
-  public async apply({ asset, transaction, stateStore }: ApplyAssetContext<{}>): Promise<void> {
+  public async apply(context: ApplyAssetContext<VoteAssetType>): Promise<void> {
   	// Get account data of the sender of the vote transaction
-    const senderAddress = transaction.senderAddress;
-    const senderAccount = await stateStore.account.get(senderAddress);
-    if (senderAccount.election.voted)
+    const senderAddress = context.transaction.senderAddress;
+    const senderAccount:ElectionModuleType = await context.stateStore.account.get(senderAddress);
+    if (senderAccount && senderAccount.election && senderAccount.election.voted)
     	throw new Error('This account has already voted');
 
     // Check if candidate exist & update
-    const electionBuffer = await stateStore.chain.get(
+    const electionBuffer = await context.stateStore.chain.get(
       CHAIN_STATE_ELECTION
     );
-    const election = codec.decode(
-      electionSchema,
-      electionBuffer
-    );
-    const posCandidate = election.candidates ? election.candidates.indexOf(asset.name) : -1;
-    if (posCandidate === -1)
-      throw new Error('This candidate do not exist.');
-    // update candidate vote
-    election.voteCount[posCandidate] = election.voteCount[posCandidate] + 1;
-    await stateStore.chain.set(
-      CHAIN_STATE_ELECTION,
-      codec.encode(electionSchema, election)
-    );
+    if (electionBuffer) {
+      const election:ElectionChainType = codec.decode(
+        electionSchema,
+        electionBuffer
+      );
+      const posCandidate = election.candidates ? election.candidates.indexOf(context.asset.name) : -1;
+      if (posCandidate === -1)
+        throw new Error('This candidate do not exist.');
+      // update candidate vote
+      election.voteCount[posCandidate] = election.voteCount[posCandidate] + 1;
+      await context.stateStore.chain.set(
+        CHAIN_STATE_ELECTION,
+        codec.encode(electionSchema, election)
+      );
+    }
 
     // save account voted
     senderAccount.election.voted = true;
-    stateStore.account.set(senderAccount.address, senderAccount);
+    context.stateStore.account.set(senderAccount.address, senderAccount);
 
   	// Update vote counter on chain
-		const counterBuffer = await stateStore.chain.get(
+		const counterBuffer = await context.stateStore.chain.get(
         CHAIN_STATE_VOTE_COUNTER
     );
-    const counter = codec.decode(
-        voteCounterSchema,
-        counterBuffer
-    );
-    counter.voteCounter = counter.voteCounter + 1;
-    await stateStore.chain.set(
-        CHAIN_STATE_VOTE_COUNTER,
-        codec.encode(voteCounterSchema, counter)
-    );
+    if (counterBuffer) {
+      const counter:VoteCounterType = codec.decode(
+          voteCounterSchema,
+          counterBuffer
+      );
+      counter.voteCounter = counter.voteCounter + 1;
+      await context.stateStore.chain.set(
+          CHAIN_STATE_VOTE_COUNTER,
+          codec.encode(voteCounterSchema, counter)
+      );
+    }
 
 	}
 }
