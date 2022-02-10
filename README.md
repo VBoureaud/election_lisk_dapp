@@ -8,6 +8,8 @@ This project was bootstrapped with [Lisk SDK](https://github.com/LiskHQ/lisk-sdk
 - You need to launch Lisk before to use frontend
 
 ---
+![Diagram](./assets/demo.png)
+
 ### How to start a node
 
 ```
